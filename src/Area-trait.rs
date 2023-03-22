@@ -39,7 +39,7 @@ impl Area for Square {
     }
 }
 
-// 定义一个泛型函数，接受实现了Area trait的类型作为参数，并打印其面积
+// 定义一个泛型函数，接受参数，并打印其面积
 fn print_area<T: Area>(shape: &T) {
     println!("面积: {}", shape.area());
 }
