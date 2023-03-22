@@ -28,3 +28,4 @@ fn main() {
     println!("黄灯持续时间: {}秒", yellow_light.duration());
     println!("绿灯持续时间: {}秒", green_light.duration());
 }
+
