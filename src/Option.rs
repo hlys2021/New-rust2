@@ -4,7 +4,7 @@ fn sum_of_numbers(numbers: &[u32]) -> Option<u32> {
     for &number in numbers {
         match sum.checked_add(number) {
             Some(new_sum) => sum = new_sum,
-            None => return None, // 溢出时返回None
+            None => return None, 
         }
     }
 
