@@ -95,38 +95,58 @@ fn it_works_for_transfer() {
 }
 
       
-#[test]
-fn create_kitty_works() {
-	ExtBuilder::default().build().execute_with(|| {
-		run_to_block(1);
+#[cfg(test)]
+mod tests {
+	
+	impl_outer_origin! {
+		pub enum Origin for Test {}
+	}
 
-		assert_ok!(KittiesModule::create(Origin::signed(1)));
-		let event = Event::kitty_created(1, 0, Kitty([0; 16]));
-		assert_eq!(last_event(), event);
-	});
-}
+	fn run_to_block(n: u64) {
+		while System::block_number() < n {
+			KittiesModule::on_finalize(System::block_number());
+			System::set_block_number(System::block_number() + 1);
+			KittiesModule::on_initialize(System::block_number());
+		}
+	}
 
-#[test]
-fn breed_kitty_works() {
-	ExtBuilder::default().build().execute_with(|| {
-		run_to_block(1);
+	#[test]
+	fn create_kitty_works() {
+		ExtBuilder::default().build().execute_with(|| {
+			run_to_block(1);
 
-		assert_ok!(KittiesModule::create(Origin::signed(1)));
-		assert_ok!(KittiesModule::create(Origin::signed(2)));
-		assert_ok!(KittiesModule::breed(Origin::signed(1), 0, 1));
-		let event = Event::kitty_bred(1, 2, 2, Kitty([0; 16]));
-		assert_eq!(last_event(), event);
-	});
-}
+			assert_ok!(KittiesModule::create(Origin::signed(1)));
+			let event = Event::kitty_created(1, 0, Kitty([0; 16]));
+			assert_eq!(last_event(), event);
+		});
+	}
 
-#[test]
-fn transfer_kitty_works() {
-	ExtBuilder::default().build().execute_with(|| {
-		run_to_block(1);
+	#[test]
+	fn breed_kitty_works() {
+		ExtBuilder::default().build().execute_with(|| {
+			run_to_block(1);
 
-		assert_ok!(KittiesModule::create(Origin::signed(1)));
-		assert_ok!(KittiesModule::transfer(Origin::signed(1), 2, 0));
-		let event = Event::kitty_transferred(1, 2, 0);
-		assert_eq!(last_event(), event);
-	});
+			assert_ok!(KittiesModule::create(Origin::signed(1)));
+			assert_ok!(KittiesModule::create(Origin::signed(2)));
+			assert_ok!(KittiesModule::breed(Origin::signed(1), 0, 1));
+			let event = Event::kitty_bred(1, 2, 2, Kitty([0; 16]));
+			assert_eq!(last_event(), event);
+		});
+	}
+
+	#[test]
+	fn transfer_kitty_works() {
+		ExtBuilder::default().build().execute_with(|| {
+			run_to_block(1);
+
+			assert_ok!(KittiesModule::create(Origin::signed(1)));
+			assert_ok!(KittiesModule::transfer(Origin::signed(1), 2, 0));
+			let event = Event::kitty_transferred(1, 2, 0);
+			assert_eq!(last_event(), event);
+		});
+	}
+
+	fn last_event() -> Event {
+		System::events().into_iter().map(|r| r.event).last().unwrap()
+	}
 }
